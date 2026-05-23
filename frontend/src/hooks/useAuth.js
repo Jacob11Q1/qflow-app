@@ -1,34 +1,50 @@
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect, useCallback } from 'react'
+
+import {
+  getCurrentUser,
+  onAuthStateChange,
+  signIn as signInHelper,
+  signUp as signUpHelper,
+  signOut as signOutHelper,
+} from '@/lib/auth'
 
 /**
- * useAuth — subscribes to the Supabase auth session.
- * Returns the current session, derived user, and a loading flag.
+ * useAuth — exposes the current user, a loading flag, and auth actions.
+ * Stays in sync via supabase's onAuthStateChange subscription.
  */
 export function useAuth() {
-  const [session, setSession] = useState(null)
+  const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    let active = true
+    let mounted = true
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!active) return
-      setSession(data.session)
+    // Seed from any persisted session.
+    getCurrentUser().then((u) => {
+      if (!mounted) return
+      setUser(u)
       setLoading(false)
     })
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
+    // Keep in sync with sign in / out / token refresh.
+    const subscription = onAuthStateChange((nextUser) => {
+      if (!mounted) return
+      setUser(nextUser)
+      setLoading(false)
     })
 
     return () => {
-      active = false
+      mounted = false
       subscription.unsubscribe()
     }
   }, [])
 
-  return { session, user: session?.user ?? null, loading }
+  const signIn = useCallback((email, password) => signInHelper(email, password), [])
+  const signUp = useCallback(
+    (email, password, fullName) => signUpHelper(email, password, fullName),
+    [],
+  )
+  const signOut = useCallback(() => signOutHelper(), [])
+
+  return { user, loading, signIn, signUp, signOut }
 }

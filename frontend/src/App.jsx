@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 
-import AppLayout from '@/components/AppLayout'
+import AppLayout from '@/components/layout/AppLayout'
+import PrivateRoute from '@/components/PrivateRoute'
 
 import Landing from '@/pages/Landing'
-import Login from '@/pages/Login'
-import Signup from '@/pages/Signup'
+import LoginPage from '@/pages/LoginPage'
+import SignupPage from '@/pages/SignupPage'
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import NotFound from '@/pages/NotFound'
 
 import Dashboard from '@/pages/app/Dashboard'
@@ -21,11 +23,19 @@ export default function App() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-      {/* Authenticated app shell */}
-      <Route path="/app" element={<AppLayout />}>
+      {/* Authenticated app shell — gated by PrivateRoute */}
+      <Route
+        path="/app"
+        element={
+          <PrivateRoute>
+            <AppLayout />
+          </PrivateRoute>
+        }
+      >
         <Route index element={<Navigate to="/app/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="proposals" element={<Proposals />} />
