@@ -9,7 +9,7 @@ import SignupPage from '@/pages/SignupPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import NotFound from '@/pages/NotFound'
 
-import Dashboard from '@/pages/app/Dashboard'
+import Dashboard from '@/pages/app/DashboardPage'
 import Proposals from '@/pages/app/Proposals'
 import ScopeCreep from '@/pages/app/ScopeCreep'
 import Clients from '@/pages/app/Clients'

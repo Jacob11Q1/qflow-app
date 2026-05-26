@@ -1,15 +1,16 @@
-import { Router } from 'express'
+const { Router } = require('express')
 
 const router = Router()
 
-// GET /health — liveness probe for the VPS / load balancer.
-router.get('/', (_req, res) => {
+// GET /health — liveness probe.
+router.get('/', (req, res) => {
   res.json({
     status: 'ok',
-    service: 'qflow-api',
+    version: '1.0.0',
     uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
+    timestamp: new Date(),
+    environment: process.env.NODE_ENV || 'development',
   })
 })
 
-export default router
+module.exports = router

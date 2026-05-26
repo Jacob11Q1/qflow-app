@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 
 import Sidebar from '@/components/layout/Sidebar'
@@ -7,14 +7,9 @@ import { cn } from '@/lib/utils'
 
 export default function AppLayout() {
   const [open, setOpen] = useState(false)
-  const location = useLocation()
-
-  // Close the mobile drawer whenever the route changes.
-  useEffect(() => {
-    setOpen(false)
-  }, [location.pathname])
 
   // Lock body scroll while the mobile drawer is open.
+  // (Nav clicks close the drawer via Sidebar's onNavigate.)
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => {

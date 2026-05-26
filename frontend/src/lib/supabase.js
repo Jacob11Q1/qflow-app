@@ -5,18 +5,41 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  // Fail loud in dev, but don't crash the whole app at import time.
-  console.warn(
-    '[QFLOW] Missing Supabase env vars. Set VITE_SUPABASE_URL and ' +
-      'VITE_SUPABASE_ANON_KEY in frontend/.env.local',
+// The placeholder values shipped in .env.example / .env.local.
+const PLACEHOLDER_URL = 'https://your-project-ref.supabase.co'
+const PLACEHOLDER_KEY = 'your-anon-public-key'
+
+/**
+ * True only when real Supabase credentials are present (not blank, not the
+ * shipped placeholders). Drives the local dev auth-bypass in useAuth.
+ */
+export function isSupabaseConfigured() {
+  return Boolean(
+    supabaseUrl &&
+      supabaseAnonKey &&
+      supabaseUrl !== PLACEHOLDER_URL &&
+      supabaseAnonKey !== PLACEHOLDER_KEY,
   )
 }
 
-export const supabase = createClient(supabaseUrl ?? '', supabaseAnonKey ?? '', {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
+if (!isSupabaseConfigured()) {
+  console.warn(
+    '[QFLOW] Supabase is not configured. Set VITE_SUPABASE_URL and ' +
+      'VITE_SUPABASE_ANON_KEY in frontend/.env.local to enable real auth. ' +
+      'Until then, local dev uses the auth bypass so /app is viewable.',
+  )
+}
+
+// Always pass syntactically valid args so createClient never throws and
+// white-screens the app when env is missing or still placeholder.
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-anon-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
   },
-})
+)
